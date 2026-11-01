@@ -1,0 +1,60 @@
+# Builds an unsigned Infly.ipa on a GitHub-hosted Mac (which has Xcode), then runs the unit tests.
+# Install the IPA with a sideloading tool such as Sideloadly, which signs it with your Apple ID.
+name: Build IPA
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  # Bundle IDs become <prefix>.infly and <prefix>.infly.widgets; the App Group is group.<prefix>.infly.
+  BUNDLE_PREFIX: com.leobruzual
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use the newest Xcode on the runner
+        run: |
+          sudo xcode-select -s "$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
+          xcodebuild -version
+
+      - name: Build for iPhone (unsigned)
+        run: |
+          xcodebuild build -project Infly.xcodeproj -scheme Infly -configuration Release \
+            -destination 'generic/platform=iOS' -derivedDataPath "$RUNNER_TEMP/dd" \
+            INFLY_BUNDLE_ID_PREFIX="$BUNDLE_PREFIX" CODE_SIGNING_ALLOWED=NO
+
+      - name: Package Infly.ipa
+        run: |
+          APP="$RUNNER_TEMP/dd/Build/Products/Release-iphoneos/Infly.app"
+          # An ad-hoc signature that carries the App Group, so re-signing tools know to keep it.
+          cat > "$RUNNER_TEMP/entitlements.plist" <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>com.apple.security.application-groups</key>
+            <array><string>group.$BUNDLE_PREFIX.infly</string></array>
+          </dict></plist>
+          EOF
+          codesign --force --sign - --entitlements "$RUNNER_TEMP/entitlements.plist" "$APP/PlugIns/InflyWidgetsExtension.appex"
+          codesign --force --sign - --entitlements "$RUNNER_TEMP/entitlements.plist" "$APP"
+          mkdir -p build/Payload
+          cp -R "$APP" build/Payload/
+          (cd build && zip -qry Infly.ipa Payload)
+          ls -la build/Infly.ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Infly-ipa
+          path: build/Infly.ipa
+          retention-days: 14
+
+      - name: Run unit tests on an iPhone simulator
+        run: |
+          UDID=$(xcrun simctl list devices available --json | python3 -c "import json,sys; d=json.load(sys.stdin)['devices']; print(next(x['udid'] for k in sorted(d, reverse=True) if 'iOS' in k for x in d[k] if 'iPhone' in x['name']))")
+          xcodebuild test -project Infly.xcodeproj -scheme Infly -destination "id=$UDID" -derivedDataPath "$RUNNER_TEMP/dd-test"
