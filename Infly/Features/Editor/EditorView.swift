@@ -19,6 +19,7 @@ struct EditorView: View {
     @State private var confirmsReset = false
     @State private var renaming = false
     @State private var draftName = ""
+    @State private var toast: String?
 
     init(request: EditorRequest) {
         _model = State(initialValue: EditorModel(design: request.design, isNew: request.isNew))
@@ -41,6 +42,10 @@ struct EditorView: View {
                 Button("Rename", systemImage: "pencil") {
                     draftName = model.design.name
                     renaming = true
+                }
+                Button("Copy Widget Code", systemImage: "doc.on.doc") {
+                    router.copyWidgetCode(of: model.design)
+                    toast = "Widget code copied"
                 }
                 if model.preset != nil {
                     Button("Reset to Preset", systemImage: "arrow.counterclockwise") { confirmsReset = true }
@@ -79,6 +84,7 @@ struct EditorView: View {
             .onChange(of: model.canUndo) { if model.canUndo { showsHint = false } }
         }
         .interactiveDismissDisabled(model.hasChanges)
+        .overlay(alignment: .bottom) { ToastView(message: $toast) }
     }
 
     private func cancel() {

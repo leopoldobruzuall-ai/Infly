@@ -171,6 +171,7 @@ private struct DesignCard: View {
         Button("Edit", systemImage: "slider.horizontal.3", action: edit)
         Button("Rename", systemImage: "pencil", action: rename)
         Button("Duplicate", systemImage: "plus.square.on.square", action: duplicate)
+        Button("Copy Widget Code", systemImage: "doc.on.doc") { router.copyWidgetCode(of: design) }
         Divider()
         Button("Delete", systemImage: "trash", role: .destructive, action: delete)
     }

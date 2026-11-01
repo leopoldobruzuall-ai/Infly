@@ -341,6 +341,27 @@ struct WidgetDesign: Codable, Hashable, Identifiable {
     func textColor(dark: Bool) -> Color { textRGBA(dark: dark).color }
 }
 
+extension WidgetDesign {
+    private static let codePrefix = "INFLY1:"
+
+    /// A pasteable copy of the design. Sideloading with a free Apple ID usually can't grant an
+    /// App Group, so a widget can show a design from a code pasted into its own settings instead.
+    var widgetCode: String {
+        guard let json = try? JSONEncoder().encode(self), let packed = try? (json as NSData).compressed(using: .zlib) else { return "" }
+        return Self.codePrefix + (packed as Data).base64EncodedString()
+    }
+
+    init?(widgetCode: String) {
+        let code = widgetCode.trimmingCharacters(in: .whitespacesAndNewlines)
+        // Real codes are about 1,000 characters; the cap keeps a bad paste from ballooning in the widget.
+        guard code.count < 8_000, code.hasPrefix(Self.codePrefix),
+              let packed = Data(base64Encoded: String(code.dropFirst(Self.codePrefix.count))),
+              let json = try? (packed as NSData).decompressed(using: .zlib) as Data,
+              let design = try? JSONDecoder().decode(WidgetDesign.self, from: json) else { return nil }
+        self = design
+    }
+}
+
 extension BackgroundStyle {
     /// White or near-black, whichever reads better. Text can land anywhere on a gradient,
     /// so this compares worst-case WCAG contrast over every visible color.

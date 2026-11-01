@@ -90,7 +90,7 @@ private struct StatusView: View {
     private var title: String {
         switch status {
         case .deleted: "Design deleted"
-        case .notShared: "Open Infly"
+        case .notShared: "Paste a design code"
         default: "Make a widget"
         }
     }
@@ -98,7 +98,7 @@ private struct StatusView: View {
     private var message: String {
         switch status {
         case .deleted: "Touch and hold, then Edit Widget to pick another design."
-        case .notShared: "Infly needs to finish setting up before widgets can show designs."
+        case .notShared: "In Infly, tap Copy Widget Code on a design. Then touch and hold here, choose Edit Widget, and paste it into Design Code."
         default: "Design one in Infly, then it shows up here."
         }
     }

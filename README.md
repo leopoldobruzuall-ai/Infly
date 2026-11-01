@@ -95,7 +95,14 @@ gh run download --repo leopoldobruzuall-ai/Infly -n Infly-ipa -D build
 3. In **Settings → General → VPN & Device Management**, trust your Apple ID's developer profile.
 4. Open Infly, save a design, then add the Infly widget from the Home Screen.
 
-With a free Apple ID, the install expires after 7 days, and you can re-sideload to renew it. Infly reads its App Group from the profile Sideloadly signs it with. If a widget still shows "Open Infly", Sideloadly didn't grant the App Group: the app works, but widgets can't see your designs.
+With a free Apple ID, the install expires after 7 days, and you can re-sideload to renew it.
+
+**Widgets without an App Group.** Free Apple IDs usually can't grant App Groups, so widgets can't read Infly's storage. Infly shows a red note in Settings when that happens. Use widget codes instead:
+
+1. In Infly, open a design's ••• menu (or the editor's title menu) and choose **Copy Widget Code**.
+2. Touch and hold the widget, choose **Edit Widget**, and paste into **Design Code**.
+
+The widget then draws the design from the code alone. Sample photos work; photos you pick yourself need the App Group. When the App Group is available, Infly reads it from the profile it was signed with, even if the signing tool renamed it.
 
 ## Build an .ipa with Xcode
 

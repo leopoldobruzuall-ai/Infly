@@ -46,7 +46,7 @@ struct SettingsView: View {
                     Text("Widgets")
                 } footer: {
                     if !store.isShared {
-                        Text("Widgets can't see your designs because this build has no App Group. See the README to set one up.")
+                        Text("This install has no App Group, so widgets can't read your designs directly. Use Copy Widget Code on a design, then paste it into the widget's Edit Widget → Design Code.")
                             .foregroundStyle(.red)
                     }
                 }
@@ -90,6 +90,7 @@ struct AddWidgetGuide: View {
     var design: WidgetDesign?
 
     @Environment(\.dismiss) private var dismiss
+    @State private var copied = false
 
     var body: some View {
         List {
@@ -103,6 +104,24 @@ struct AddWidgetGuide: View {
                     }
                     .padding(.vertical, Space.s)
                     .frame(maxWidth: .infinity)
+                }
+            }
+            if !DesignStore.shared.isShared {
+                Section {
+                    Text("This install can't share storage with its widgets, so give each widget a design code.")
+                    step(1, "Copy a design's code: use the button below, or Copy Widget Code in a design's menu.")
+                    step(2, "Add the widget as shown next, touch and hold it, and choose Edit Widget.")
+                    step(3, "Paste the code into Design Code, then tap outside the widget.")
+                    if let design {
+                        Button(copied ? "Copied" : "Copy Widget Code", systemImage: copied ? "checkmark" : "doc.on.doc") {
+                            Router.shared.copyWidgetCode(of: design)
+                            copied = true
+                        }
+                    }
+                } header: {
+                    Label("Without an App Group", systemImage: "doc.on.doc")
+                } footer: {
+                    Text("Photos you pick yourself need the App Group; sample photos and everything else work from the code.")
                 }
             }
             if design?.size.isLockScreen != true {

@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 @main
 struct InflyApp: App {
@@ -45,6 +46,12 @@ final class Router {
 
     func edit(_ design: WidgetDesign, isNew: Bool, from sourceID: String? = nil) {
         editor = EditorRequest(design: design, isNew: isNew, sourceID: sourceID)
+    }
+
+    /// For widgets that can't read Infly's storage: paste this into Edit Widget → Design Code.
+    func copyWidgetCode(of design: WidgetDesign) {
+        UIPasteboard.general.string = design.widgetCode
+        toast = "Widget code copied"
     }
 
     func runFollowUp() {
@@ -125,7 +132,7 @@ struct RootView: View {
 }
 
 /// A brief confirmation that floats above the tab bar and is announced to VoiceOver.
-private struct ToastView: View {
+struct ToastView: View {
     @Binding var message: String?
     private let motion = MotionPreference()
 

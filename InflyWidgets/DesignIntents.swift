@@ -2,30 +2,38 @@ import AppIntents
 import WidgetKit
 
 /// Picks one saved design for a widget. Home and Lock Screen widgets get separate intents,
-/// so each picker lists only the designs made for that placement.
+/// so each picker lists only the designs made for that placement. A pasted design code works
+/// without the App Group, for installs whose signing couldn't grant one.
 protocol DesignChoosing: WidgetConfigurationIntent {
     static var forLockScreen: Bool { get }
     var designID: UUID? { get }
+    var code: String? { get }
 }
 
 struct ChooseHomeDesign: DesignChoosing {
     static var title: LocalizedStringResource { "Choose Design" }
-    static var description: IntentDescription? { IntentDescription("Pick which Infly design this widget shows.") }
+    static var description: IntentDescription? { IntentDescription("Pick which Infly design this widget shows, or paste a design code copied in Infly.") }
     static var forLockScreen: Bool { false }
 
     @Parameter(title: "Design")
     var design: HomeDesign?
+
+    @Parameter(title: "Design Code")
+    var code: String?
 
     var designID: UUID? { design?.id }
 }
 
 struct ChooseLockDesign: DesignChoosing {
     static var title: LocalizedStringResource { "Choose Design" }
-    static var description: IntentDescription? { IntentDescription("Pick which Infly design this Lock Screen widget shows.") }
+    static var description: IntentDescription? { IntentDescription("Pick which Infly design this Lock Screen widget shows, or paste a design code copied in Infly.") }
     static var forLockScreen: Bool { true }
 
     @Parameter(title: "Design")
     var design: LockDesign?
+
+    @Parameter(title: "Design Code")
+    var code: String?
 
     var designID: UUID? { design?.id }
 }
@@ -131,6 +139,11 @@ struct DesignProvider<Intent: DesignChoosing>: AppIntentTimelineProvider {
     }
 
     private func entry(for configuration: Intent, in context: Context, at date: Date) -> DesignEntry {
+        if let code = configuration.code, let design = WidgetDesign(widgetCode: code) {
+            // Bundled sample photos still load; photos picked in the app live in the App Group.
+            let photo = design.usesPhoto ? PhotoFiles.load(design.photo.imageName, root: SharedContainer.url ?? .temporaryDirectory, maxPixels: 1200) : .none
+            return DesignEntry(date: date, design: design, photo: photo)
+        }
         guard let root = SharedContainer.url else { return DesignEntry(date: date, status: .notShared) }
         let designs = (try? DesignStore.read(from: root)) ?? []
         let design: WidgetDesign?

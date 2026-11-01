@@ -228,6 +228,18 @@ struct LogicTests {
         #expect(WidgetKind.allCases.allSatisfy { Presets.blank($0).template.kind == $0 })
     }
 
+    @Test func widgetCodesRoundTripAndRejectJunk() throws {
+        var design = try #require(Presets.preset(id: "prism")).makeDesign()
+        design.countdown.title = "Lisboa ✈︎"
+        let code = design.widgetCode
+        #expect(code.hasPrefix("INFLY1:"))
+        #expect(code.count < 2_000, "Short enough to paste comfortably")
+        #expect(WidgetDesign(widgetCode: "  \(code)\n") == design)
+        #expect(WidgetDesign(widgetCode: "INFLY1:not-base64") == nil)
+        #expect(WidgetDesign(widgetCode: "hello") == nil)
+        #expect(WidgetDesign(widgetCode: "INFLY1:" + String(repeating: "A", count: 9_000)) == nil)
+    }
+
     @Test func appGroupComesFromTheSigningProfile() throws {
         let profile = URL.temporaryDirectory.appending(path: "embedded-\(UUID().uuidString).mobileprovision")
         defer { try? FileManager.default.removeItem(at: profile) }
