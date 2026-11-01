@@ -13,9 +13,10 @@ Swift, SwiftUI and WidgetKit. No accounts, analytics, network access or third-pa
 | | |
 |---|---|
 | Xcode project (app, widget extension, unit tests) | Done |
-| Typechecked against the iOS 18 API surface | Yes. App and widget have zero errors and zero warnings (see [How this was verified](#how-this-was-verified)) |
-| Unit tests | 16 of 16 pass |
-| Built with Xcode, run in the iOS Simulator, signed, exported as `.ipa` | **Not done.** This Mac has no Xcode and no signing identity (see [What's missing for an .ipa](#whats-missing-for-an-ipa)) |
+| Built with Xcode 26.6 (iOS 26.5 SDK) | Yes, on GitHub Actions: build succeeded with 0 warnings |
+| Unit tests | 17 of 17 pass, on an iPhone simulator in the cloud |
+| `.ipa` | Built in the cloud and ad-hoc signed. Install it with Sideloadly (see [Install with Sideloadly](#install-with-sideloadly)) |
+| Run on a real iPhone | Not yet verified |
 
 ## Requirements
 
@@ -68,10 +69,35 @@ xcodebuild test -project Infly.xcodeproj -scheme Infly -destination 'platform=iO
 - Automatic text color picks the readable choice.
 - Preset integrity.
 - Widget size lookup.
+- The App Group is read from the signing profile, as after re-signing.
 
 Things to check by hand on a device: adding Home and Lock Screen widgets, choosing a design in **Edit Widget**, tapping a widget to open its design, deleting a design that's on the Home Screen (the widget shows "Design deleted"), picking a photo while offline, and Dark Mode, tinted and Clear Home Screens, larger text, Reduce Motion and Reduce Transparency.
 
-## Build an .ipa
+## Get the IPA without Xcode
+
+`.github/workflows/build-ipa.yml` builds the IPA on a GitHub-hosted Mac. It runs on every push to `main` (README and `docs/` changes are skipped) and from **Actions → Build IPA → Run workflow**. Each run:
+
+1. Builds for iPhone with the newest Xcode on the runner, unsigned.
+2. Ad-hoc signs both bundles with the App Group entitlement, so re-signing tools keep it.
+3. Uploads `Infly.ipa` as the run's `Infly-ipa` artifact, kept for 14 days.
+4. Runs the unit tests on an iPhone simulator.
+
+Bundle IDs come from `BUNDLE_PREFIX` at the top of the workflow (currently `com.leobruzual`). To download the newest IPA:
+
+```bash
+gh run download --repo leopoldobruzuall-ai/Infly -n Infly-ipa -D build
+```
+
+## Install with Sideloadly
+
+1. Connect your iPhone, open Sideloadly, drag in `build/Infly.ipa`, enter your Apple ID, and click **Start**. Sideloadly signs the app and its widget with your Apple ID.
+2. On the iPhone, open **Settings → Privacy & Security → Developer Mode** and turn it on if asked. The iPhone restarts.
+3. In **Settings → General → VPN & Device Management**, trust your Apple ID's developer profile.
+4. Open Infly, save a design, then add the Infly widget from the Home Screen.
+
+With a free Apple ID, the install expires after 7 days, and you can re-sideload to renew it. Infly reads its App Group from the profile Sideloadly signs it with. If a widget still shows "Open Infly", Sideloadly didn't grant the App Group: the app works, but widgets can't see your designs.
+
+## Build an .ipa with Xcode
 
 With a paid Apple Developer team set in `Config/Infly.xcconfig`:
 
@@ -89,36 +115,30 @@ xcodebuild -exportArchive -archivePath build/Infly.xcarchive -exportOptionsPlist
 
 `Config/ExportOptions.plist` uses `debugging`. Change `method` to `release-testing` or `app-store-connect` as needed. Never put certificates, passwords or API keys in the project; Xcode reads signing from your keychain and Apple account.
 
-## What's missing for an .ipa
-
-This Mac has:
-
-- **No Xcode.** Only the Command Line Tools (Swift 6.1.2, macOS 15.5 SDK) are installed. That means no iOS SDK, no Simulator, and no `actool` to compile asset catalogs.
-- **No signing identity** (`security find-identity` finds 0) and no provisioning profiles.
-- **About 15 GB free.** Xcode plus an iOS Simulator runtime needs more than that.
-
-To produce the `.ipa`, install Xcode from the App Store, sign in to your Apple Developer account in Xcode → Settings → Accounts, then follow [Build an .ipa](#build-an-ipa).
-
 ## How this was verified
 
-Without Xcode, the code was checked with the Mac Catalyst SDK. Catalyst exposes the iOS UIKit / SwiftUI / WidgetKit / App Intents APIs.
+The development Mac has no Xcode, only the Command Line Tools. So the project was checked two ways.
+
+**In the cloud, with real Xcode:**
+
+- Xcode 26.6 built the app and widget for iPhone with 0 warnings.
+- The App Intents metadata (both design pickers) and the compiled asset catalogs are in the IPA.
+- All 17 unit tests passed on an iPhone simulator.
+
+**Locally, with the Mac Catalyst SDK**, which exposes the iOS UIKit / SwiftUI / WidgetKit / App Intents APIs:
 
 - **Typecheck.** Both targets typecheck against `arm64-apple-ios18.0-macabi` with zero errors and zero warnings.
-- **Unit tests.** The real test file ran against the real sources: 16 of 16 passed.
+- **Unit tests.** The real test file ran against the real sources: 17 of 17 passed.
 - **Renders.** Every preset at every size was rendered to PNG through the same `WidgetCanvas` / `DesignView` code the widget uses (the images in `docs/`).
 - **Smoke runs.** The app was built as a Catalyst app and launched into every tab, every editor type and section, the add-widget guide, and first-launch onboarding: 19 paths, no crashes.
 
   These runs caught a real crash, now fixed. A view that hosts an `.alert`, a `.confirmationDialog` or a paged `TabView` and also reads an `@Observable` object with `@Environment` crashes when presented. So the store and router are shared instances (`DesignStore.shared`, `Router.shared`) rather than environment objects.
 
-**Not verified here:**
+**Not verified yet:**
 
-- The iOS 26 Liquid Glass code (compiled out by Swift 6.1).
-- Asset catalog compilation.
-- App Intents metadata extraction.
-- A real widget on a real Home Screen.
-- Signing.
-
-Expect to fix small issues on the first Xcode build.
+- Running on a real iPhone, including a real widget on a real Home Screen.
+- The Liquid Glass look on iOS 26 (it compiles, but nobody has looked at it).
+- Signing with a paid team, and how Sideloadly handles the App Group.
 
 ## Architecture
 
