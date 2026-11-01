@@ -52,7 +52,7 @@ struct SettingsView: View {
                 }
 
                 Section("Privacy") {
-                    InfoRow(symbol: "iphone", title: "Stays on this iPhone", detail: "Designs and photos never leave your device. No accounts, analytics, ads or network access.")
+                    InfoRow(symbol: "lock.shield", title: "Stays on your device", detail: "Designs and photos never leave your device. No accounts, analytics, ads or network access.")
                     InfoRow(symbol: "hand.raised", title: "No permissions needed", detail: "The system photo picker shares only the photos you choose. Infly can't see the rest of your library.")
                 }
 
@@ -106,18 +106,25 @@ struct AddWidgetGuide: View {
                     .frame(maxWidth: .infinity)
                 }
             }
+            #if targetEnvironment(macCatalyst)
+            Section {
+                step(1, "Right-click an empty part of your desktop and choose Edit Widgets.")
+                step(2, "Search for Infly and drag a size onto your desktop.")
+                step(3, "Right-click the new widget, choose Edit “Infly”, and paste a design code into Design Code.")
+                if let design { copyButton(design) }
+            } header: {
+                Label("Mac Desktop", systemImage: "desktopcomputer")
+            } footer: {
+                Text("Get a design's code with Copy Widget Code in its menu. With Infly on your iPhone, its widgets can also appear here: System Settings → Desktop & Dock → Use iPhone widgets.")
+            }
+            #else
             if !DesignStore.shared.isShared {
                 Section {
                     Text("This install can't share storage with its widgets, so give each widget a design code.")
                     step(1, "Copy a design's code: use the button below, or Copy Widget Code in a design's menu.")
                     step(2, "Add the widget as shown next, touch and hold it, and choose Edit Widget.")
                     step(3, "Paste the code into Design Code, then tap outside the widget.")
-                    if let design {
-                        Button(copied ? "Copied" : "Copy Widget Code", systemImage: copied ? "checkmark" : "doc.on.doc") {
-                            Router.shared.copyWidgetCode(of: design)
-                            copied = true
-                        }
-                    }
+                    if let design { copyButton(design) }
                 } header: {
                     Label("Without an App Group", systemImage: "doc.on.doc")
                 } footer: {
@@ -144,6 +151,7 @@ struct AddWidgetGuide: View {
                     Label("Lock Screen", systemImage: "lock.iphone")
                 }
             }
+            #endif
             Section("Good to Know") {
                 Text("Tap any Infly widget to open its design here. Your edits reach your widgets within moments of saving.")
                 Text("Each widget can show any design of its kind, so you can swap designs without removing the widget.")
@@ -157,6 +165,13 @@ struct AddWidgetGuide: View {
                     Button("Done") { dismiss() }
                 }
             }
+        }
+    }
+
+    private func copyButton(_ design: WidgetDesign) -> some View {
+        Button(copied ? "Copied" : "Copy Widget Code", systemImage: copied ? "checkmark" : "doc.on.doc") {
+            Router.shared.copyWidgetCode(of: design)
+            copied = true
         }
     }
 

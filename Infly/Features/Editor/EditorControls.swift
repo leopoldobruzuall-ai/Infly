@@ -132,7 +132,7 @@ private struct PhotoControls: View {
             }
             .disabled(importing)
         } footer: {
-            Text("Infly only receives the photo you pick. It's resized and kept on this iPhone.")
+            Text("Infly only receives the photo you pick. It's resized and kept on this device.")
         }
         .onChange(of: pickerItem) { _, item in importPhoto(item) }
         .alert("Couldn't Use That Photo", isPresented: $importFailed) {

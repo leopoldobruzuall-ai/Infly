@@ -49,6 +49,7 @@
 		D00000000000000000000024 /* Infly.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Infly.entitlements; sourceTree = "<group>"; };
 		D00000000000000000000025 /* Infly-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "Infly-Info.plist"; sourceTree = "<group>"; };
 		D00000000000000000000026 /* InflyWidgets-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "InflyWidgets-Info.plist"; sourceTree = "<group>"; };
+		D00000000000000000000027 /* InflyMac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = InflyMac.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -122,6 +123,7 @@
 			children = (
 				D00000000000000000000023 /* Infly.xcconfig */,
 				D00000000000000000000024 /* Infly.entitlements */,
+				D00000000000000000000027 /* InflyMac.entitlements */,
 				D00000000000000000000025 /* Infly-Info.plist */,
 				D00000000000000000000026 /* InflyWidgets-Info.plist */,
 			);
@@ -386,6 +388,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Config/Infly.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = Config/InflyMac.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -395,6 +398,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -402,9 +406,11 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(INFLY_BUNDLE_ID_PREFIX).infly";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
+				"TARGETED_DEVICE_FAMILY[sdk=macosx*]" = 2;
 			};
 			name = Debug;
 		};
@@ -414,6 +420,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Config/Infly.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = Config/InflyMac.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -423,6 +430,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -430,9 +438,11 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(INFLY_BUNDLE_ID_PREFIX).infly";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
+				"TARGETED_DEVICE_FAMILY[sdk=macosx*]" = 2;
 			};
 			name = Release;
 		};
@@ -441,6 +451,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Config/Infly.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = Config/InflyMac.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Config/InflyWidgets-Info.plist";
@@ -454,9 +465,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(INFLY_BUNDLE_ID_PREFIX).infly.widgets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
+				"TARGETED_DEVICE_FAMILY[sdk=macosx*]" = 2;
 			};
 			name = Debug;
 		};
@@ -465,6 +478,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Config/Infly.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = Config/InflyMac.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Config/InflyWidgets-Info.plist";
@@ -478,9 +492,11 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(INFLY_BUNDLE_ID_PREFIX).infly.widgets";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
+				"TARGETED_DEVICE_FAMILY[sdk=macosx*]" = 2;
 			};
 			name = Release;
 		};

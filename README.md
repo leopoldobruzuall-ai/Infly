@@ -16,7 +16,8 @@ Swift, SwiftUI and WidgetKit. No accounts, analytics, network access or third-pa
 | Built with Xcode 26.6 (iOS 26.5 SDK) | Yes, on GitHub Actions: build succeeded with 0 warnings |
 | Unit tests | 17 of 17 pass, on an iPhone simulator in the cloud |
 | `.ipa` | Built in the cloud and ad-hoc signed. Install it with Sideloadly (see [Install with Sideloadly](#install-with-sideloadly)) |
-| Run on a real iPhone | Not yet verified |
+| Mac app | Built in the cloud with Mac Catalyst, ad-hoc signed (see [Install on a Mac](#install-on-a-mac)) |
+| Run on a real iPhone or Mac | Not yet verified |
 
 ## Requirements
 
@@ -29,7 +30,7 @@ Swift, SwiftUI and WidgetKit. No accounts, analytics, network access or third-pa
 
   iOS 18 runs on every iPhone that iOS 17 supports (XS / XR and later).
 - **iOS 26 and later** get Liquid Glass (`glassEffect`, `.glass` and `.glassProminent` button styles, a tab bar that minimizes on scroll). iOS 18 uses materials with hairline edges instead.
-- iPhone only, portrait.
+- iPhone (portrait), plus a Mac app built with Mac Catalyst (macOS 15 or later).
 
 ## Set up and run
 
@@ -73,20 +74,40 @@ xcodebuild test -project Infly.xcodeproj -scheme Infly -destination 'platform=iO
 
 Things to check by hand on a device: adding Home and Lock Screen widgets, choosing a design in **Edit Widget**, tapping a widget to open its design, deleting a design that's on the Home Screen (the widget shows "Design deleted"), picking a photo while offline, and Dark Mode, tinted and Clear Home Screens, larger text, Reduce Motion and Reduce Transparency.
 
-## Get the IPA without Xcode
+## Downloads, without Xcode
 
-`.github/workflows/build-ipa.yml` builds the IPA on a GitHub-hosted Mac. It runs on every push to `main` (README and `docs/` changes are skipped) and from **Actions → Build IPA → Run workflow**. Each run:
+Both apps are on the repo's **latest** release: https://github.com/leopoldobruzuall-ai/Infly/releases/tag/latest
 
-1. Builds for iPhone with the newest Xcode on the runner, unsigned.
-2. Ad-hoc signs both bundles with the App Group entitlement, so re-signing tools keep it.
-3. Uploads `Infly.ipa` as the run's `Infly-ipa` artifact, kept for 14 days.
+- `Infly.ipa` is for iPhone.
+- `Infly-mac.zip` is the Mac app.
+
+The repo is private, so sign in to GitHub to download.
+
+`.github/workflows/build-ipa.yml` (**Build apps**) builds both on a GitHub-hosted Mac. It runs on every push to `main` (README and `docs/` changes are skipped) and from **Actions → Build apps → Run workflow**. Each run:
+
+1. Builds for iPhone with the newest Xcode on the runner, unsigned, and ad-hoc signs it with the App Group entitlement so re-signing tools keep it.
+2. Builds the Mac app with Mac Catalyst, unsigned, and ad-hoc signs it with the sandbox entitlement that Mac widget extensions need.
+3. Replaces the **latest** release's files, and also uploads them as run artifacts, kept for 14 days.
 4. Runs the unit tests on an iPhone simulator.
 
-Bundle IDs come from `BUNDLE_PREFIX` at the top of the workflow (currently `com.leobruzual`). To download the newest IPA:
+Bundle IDs come from `BUNDLE_PREFIX` at the top of the workflow (currently `com.leobruzual`). To download from the command line:
 
 ```bash
-gh run download --repo leopoldobruzuall-ai/Infly -n Infly-ipa -D build
+gh release download latest --repo leopoldobruzuall-ai/Infly -D build --clobber
 ```
+
+## Install on a Mac
+
+Needs macOS 15 or later, on Apple Silicon or Intel.
+
+1. Download `Infly-mac.zip` from the latest release, unzip it, and drag **Infly** into **Applications**.
+2. Open it once. macOS blocks apps that aren't notarized, so go to **System Settings → Privacy & Security** and click **Open Anyway**.
+3. **Widgets:**
+   1. Right-click an empty part of the desktop and choose **Edit Widgets**.
+   2. Search for **Infly** and drag a size onto the desktop.
+   3. Right-click the widget, choose **Edit "Infly"**, and paste into **Design Code**. Get a code with **Copy Widget Code** in a design's menu.
+
+Unsigned Mac builds can't be granted an App Group, so Mac widgets always use design codes. If Infly doesn't appear in the widget gallery, macOS may want a signed build. Alternatively, with Infly on your iPhone, turn on **System Settings → Desktop & Dock → Use iPhone widgets** and add Infly's iPhone widgets to the Mac desktop.
 
 ## Install with Sideloadly
 
@@ -207,7 +228,7 @@ Tools/            GenerateArt.swift draws the app icon and sample photos (swift 
 - The Lock Screen ignores colors and backgrounds, so the editor hides those controls for Lock Screen sizes.
 - Clock times update through the system and can lag by a few seconds. Seconds can't be shown.
 - App Groups need a signing team that can register them. Without the App Group, the app still works, but widgets show "Open Infly" and Settings shows a warning.
-- English only, iPhone only, portrait only.
+- English only. On iPhone, portrait only. No iPad layouts. The Mac app uses the iPad-style Catalyst interface and has no Lock Screen widgets.
 - Photos stored only in iCloud may fail to load offline. Infly then explains and asks for another photo.
 
 ## Future work

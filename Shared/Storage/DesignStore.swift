@@ -7,7 +7,11 @@ enum SharedContainer {
     /// Sideloading tools re-sign with App Group IDs of their own, so the group in the embedded
     /// provisioning profile wins. App Store builds have no profile and use Info.plist's value,
     /// which the build fills in from Config/Infly.xcconfig.
-    static let groupID = signedGroupID() ?? Bundle.main.object(forInfoDictionaryKey: "InflyAppGroup") as? String
+    static let groupID: String? = {
+        if let signed = signedGroupID() { return signed }
+        let declared = Bundle.main.object(forInfoDictionaryKey: "InflyAppGroup") as? String ?? ""
+        return declared.isEmpty ? nil : declared // Mac builds declare none.
+    }()
 
     static var url: URL? {
         groupID.flatMap { FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: $0) }

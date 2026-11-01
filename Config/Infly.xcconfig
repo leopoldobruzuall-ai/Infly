@@ -4,6 +4,8 @@ DEVELOPMENT_TEAM =
 
 // The app and widget extension read saved designs from this App Group.
 INFLY_APP_GROUP = group.$(INFLY_BUNDLE_ID_PREFIX).infly
+// Unsigned Mac builds can't be granted a group, so Mac widgets show designs from pasted codes.
+INFLY_APP_GROUP[sdk=macosx*] =
 
 MARKETING_VERSION = 1.0
 CURRENT_PROJECT_VERSION = 1

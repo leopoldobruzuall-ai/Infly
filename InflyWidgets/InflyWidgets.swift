@@ -5,7 +5,10 @@ import WidgetKit
 struct InflyWidgets: WidgetBundle {
     var body: some Widget {
         HomeScreenWidget()
+        // Macs have no Lock Screen widgets.
+        #if !targetEnvironment(macCatalyst)
         LockScreenWidget()
+        #endif
     }
 }
 
